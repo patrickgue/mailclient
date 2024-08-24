@@ -1,0 +1,6 @@
+#ifndef config_h
+#define config_h
+#define IMAP  "imap://<imap server>"
+#define USER "<username>"
+#define PASSWD "<secret>"
+#endif

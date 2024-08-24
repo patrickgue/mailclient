@@ -1,0 +1,8 @@
+config.h
+
+*.o
+*.d
+.depend
+
+
+mailclient
