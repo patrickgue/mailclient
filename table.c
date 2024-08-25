@@ -9,6 +9,7 @@
 #include <Xm/RowColumn.h>
 #include <Xm/List.h>
 
+
 #include "config.h"
 #include "imap.h"
 
@@ -80,7 +81,6 @@ int main (int argc, char *argv[])
                                     sessionShellWidgetClass, NULL);
     rowcol = XmCreateRowColumn (toplevel, "rowcol", NULL, 0);
 
-   
 
     /* Create tab stops for columnar output */
     for (i = 0; i < MAX_COLUMNS; i++) {
@@ -127,8 +127,10 @@ int main (int argc, char *argv[])
     XtSetArg (args[n], XmNitems, xmstring_table);                n++;
     XtSetArg (args[n], XmNitemCount, xmstring_count);            n++;
     XtSetArg (args[n], XmNwidth, 500);                           n++;
-    XtSetArg (args[n], XmNvisibleItemCount, xmstring_count + 1); n++;
+    XtSetArg (args[n], XmNvisibleItemCount, 10); n++;
     list = XmCreateScrolledList (rowcol, "list", args, n);
+
+
     XtManageChild (list);
 
     /* Free the memory now the widget has the data */
