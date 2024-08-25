@@ -1,6 +1,8 @@
 
 Mail client with retro design. Not much to see yet...
 
+![window showing example data](./doc/screenshot.png)
+
 _few random pointers and resources:_
 
 rename `config.h.example` to `config.h` and fill in your server/username/password
