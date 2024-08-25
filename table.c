@@ -14,7 +14,7 @@
 
 
 #define MAX_COLUMNS    2
-#define HELVETICA "-*-helvetica-bold-r-normal--12-*-*-*-*-*-iso8859-1"
+#define HELVETICA "-*-helvetica-medium-r-normal--12-*-*-*-*-*-iso8859-1"
 
 /*
 ** CreateListData(): routine to convert the
@@ -25,6 +25,7 @@ XmStringTable CreateListData (int *count)
     XmStringTable            table = (XmStringTable) 0;
     XmString                 row = (XmString) 0;
     XmString                 tmp = (XmString) 0;
+    XmString                 tmp2 = (XmString) 0;
     XmString                 tab;
     struct imap_inbox_list **entries;
     int                      entries_count, i;
@@ -35,17 +36,20 @@ XmStringTable CreateListData (int *count)
     imap_init(IMAP, USER, PASSWD);
     imap_inbox_fetch_meta("INBOX", &meta);
     entries = malloc(sizeof(struct imap_inbox_list*));
-    entries_count = imap_inbox_fetch_list("INBOX", meta.exists, entries);
+    entries_count = meta.exists;
+    imap_inbox_fetch_list("INBOX", entries_count, entries);
 
-    table = (XmStringTable) XtMalloc(sizeof(XmString) * entries_count);
+    table = (XmStringTable) XtMalloc(sizeof(XmString) * (entries_count + 1));
     
     for (i = 0; i < entries_count; i++)
     {
+        tmp2 = XmStringGenerate((XtPointer) (*entries)[i].subject, NULL, XmCHARSET_TEXT, "");
         row = XmStringGenerate((XtPointer) (*entries)[i].from, NULL, XmCHARSET_TEXT, "");
         tmp = XmStringConcat(row, tab);
-        row = XmStringConcatAndFree(tmp, XmStringGenerate((XtPointer) (*entries)[i].subject, NULL, XmCHARSET_TEXT, ""));
+        row = XmStringConcat(tmp, tmp2);
         table[i] = row;
-            
+        XtFree((XtPointer) tmp);
+        XtFree((XtPointer) tmp2);
     }
     
     XmStringFree (tab);
@@ -53,6 +57,8 @@ XmStringTable CreateListData (int *count)
     table[entries_count] = (XmString) 0;
 
     *count = entries_count;
+    free(*entries);
+    free(entries);
     return table;
 }
 
@@ -79,10 +85,10 @@ int main (int argc, char *argv[])
     /* Create tab stops for columnar output */
     for (i = 0; i < MAX_COLUMNS; i++) {
         tabs[i] = XmTabCreate ((float) 4, 
-                                XmINCHES, 
-                                ((i == 0) ? XmABSOLUTE : XmRELATIVE),
-                                XmALIGNMENT_BEGINNING, 
-                                ".");
+                               XmINCHES, 
+                               ((i == 0) ? XmABSOLUTE : XmRELATIVE),
+                               XmALIGNMENT_BEGINNING, 
+                               ".");
     }
 
     /* Create a tablist table which contains the tabs */
@@ -128,7 +134,9 @@ int main (int argc, char *argv[])
     /* Free the memory now the widget has the data */
     /* First, the compound strings */
     for (i = 0; i < xmstring_count; i++)
+    {
         XmStringFree (xmstring_table[i]);
+    }
     XtFree ((char *) xmstring_table);
 
     /* Secondly, the XmTab objects */
@@ -136,11 +144,11 @@ int main (int argc, char *argv[])
         XmTabFree (tabs[i]);
 
     /* Thirdly, the XmTabList object */
-        XmTabListFree (tablist);
+    XmTabListFree (tablist);
 
     /* Fourthly, the XmRendition objects */
     for (i = 0; i < XtNumber (renditions); i++)
-        XmRenditionFree (renditions[i]);
+       XmRenditionFree (renditions[i]);
 
     /* Lastly, the XmRenderTable object */
     XmRenderTableFree (rendertable);

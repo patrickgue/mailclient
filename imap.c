@@ -55,7 +55,6 @@ size_t imap_inbox_process_header(char *ptr, size_t size, size_t nmemb, void *use
 
     while (tok != NULL)
     {
-
         subject = strstr(tok, "Subject") != NULL;
         from = strstr(tok, "From:") != NULL;
         to = strstr(tok, "To:") != NULL;
@@ -116,9 +115,7 @@ int imap_inbox_fetch_list(char *inbox, int n, struct imap_inbox_list **l)
     int i;
 
     list = l;
-    *list = malloc(n * sizeof(struct imap_inbox_list));
-    
-
+    (*list) = malloc(n * sizeof(struct imap_inbox_list));
     
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, imap_inbox_process_header);
     
