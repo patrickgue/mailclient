@@ -13,7 +13,10 @@ struct imap_inbox_meta
 
 struct imap_inbox_list
 {
-    char sender[STR_BUFF_LEN];
+    char from[STR_BUFF_LEN];
+    char to[STR_BUFF_LEN];
+    char cc[STR_BUFF_LEN];
+    char bcc[STR_BUFF_LEN];
     char subject[STR_BUFF_LEN];
 };
 
@@ -25,7 +28,7 @@ struct imap_login
 
 int imap_init(char *, char *, char *);
 void imap_inbox_fetch_meta(char *inbox, struct imap_inbox_meta*);
-void imap_inbox_fetch(struct imap_inbox_list **);
+int imap_inbox_fetch_list(char *, int, struct imap_inbox_list **);
 void imap_cleanup();
 
 #endif

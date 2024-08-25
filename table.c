@@ -3,25 +3,18 @@
 ** multi-column, multi-font, multi-color List widget.
 */
 
+#include <stdlib.h>
+
 #include <Xm/Xm.h>
 #include <Xm/RowColumn.h>
 #include <Xm/List.h>
 
+#include "config.h"
+#include "imap.h"
+
 
 #define MAX_COLUMNS    2
 #define HELVETICA "-*-helvetica-bold-r-normal--12-*-*-*-*-*-iso8859-1"
-
-/*
-** Arbitrary data to display in the List
-*/
-static char *poem[] =
-{
-    "Mary", "had a", "little", "lamb",
-    "Its", "fleece", "was white", "as snow",
-    "And", "everywhere that", "Mary", "went",
-    "The", "lamb was", "sure", "to follow",
-    (char *) 0
-};
 
 /*
 ** CreateListData(): routine to convert the
@@ -29,59 +22,37 @@ static char *poem[] =
 */
 XmStringTable CreateListData (int *count)
 {
-    XmStringTable    table = (XmStringTable) 0;
-    int              line = 0;
-    int              column = 0;
-    int              index = 0;
-    XmString         entry = (XmString) 0;
-    XmString         row = (XmString) 0;
-    XmString         tmp = (XmString) 0;
-    XmString         tab;
+    XmStringTable            table = (XmStringTable) 0;
+    XmString                 row = (XmString) 0;
+    XmString                 tmp = (XmString) 0;
+    XmString                 tab;
+    struct imap_inbox_list **entries;
+    int                      entries_count, i;
+    struct imap_inbox_meta   meta;
 
     tab = XmStringComponentCreate (XmSTRING_COMPONENT_TAB, 0, NULL);
 
-    while (poem[index] != (char *) 0) {
-        /* create a compound string, using the rendition tag */
-        entry = XmStringGenerate ((XtPointer) poem[index], 
-                                NULL, 
-                                XmCHARSET_TEXT, 
-                                "");
+    imap_init(IMAP, USER, PASSWD);
+    imap_inbox_fetch_meta("INBOX", &meta);
+    entries = malloc(sizeof(struct imap_inbox_list*));
+    entries_count = imap_inbox_fetch_list("INBOX", meta.exists, entries);
 
-        if (row != (XmString) 0) {
-            tmp = XmStringConcat (row, tab);
-            XmStringFree (row);
-            row = XmStringConcatAndFree (tmp, entry);
-        }
-        else {
-            row = entry;
-        }
-
-        ++column;
-
-        if (column == MAX_COLUMNS) {
-            if (table == (XmStringTable) 0) {
-                table = (XmStringTable) XtMalloc ((unsigned)
-                sizeof (XmString));
-                }
-            else {
-                table = (XmStringTable) XtRealloc ((char *) table,
-                (unsigned) (line + 1) * sizeof (XmString));
-            }
-
-            table[line++] = row;
-            row = (XmString) 0;
-            column = 0;
-        }
-
-        index++;
+    table = (XmStringTable) XtMalloc(sizeof(XmString) * entries_count);
+    
+    for (i = 0; i < entries_count; i++)
+    {
+        row = XmStringGenerate((XtPointer) (*entries)[i].from, NULL, XmCHARSET_TEXT, "");
+        tmp = XmStringConcat(row, tab);
+        row = XmStringConcatAndFree(tmp, XmStringGenerate((XtPointer) (*entries)[i].subject, NULL, XmCHARSET_TEXT, ""));
+        table[i] = row;
+            
     }
-
+    
     XmStringFree (tab);
 
-    table[line] = (XmString) 0;
+    table[entries_count] = (XmString) 0;
 
-    *count = line;
-
+    *count = entries_count;
     return table;
 }
 
@@ -107,7 +78,7 @@ int main (int argc, char *argv[])
 
     /* Create tab stops for columnar output */
     for (i = 0; i < MAX_COLUMNS; i++) {
-        tabs[i] = XmTabCreate ((float) 1.5, 
+        tabs[i] = XmTabCreate ((float) 4, 
                                 XmINCHES, 
                                 ((i == 0) ? XmABSOLUTE : XmRELATIVE),
                                 XmALIGNMENT_BEGINNING, 
@@ -130,8 +101,8 @@ int main (int argc, char *argv[])
         XtSetArg (args[n], XmNfontName, HELVETICA); n++;
         XtSetArg (args[n], XmNfontType, XmFONT_IS_FONT);         n++;
         renditions[i] = XmRenditionCreate (toplevel,
-                                    "",
-                                    args, n);
+                                           "",
+                                           args, n);
     }
 
     /* Create the Render Table */
@@ -149,7 +120,7 @@ int main (int argc, char *argv[])
     XtSetArg (args[n], XmNrenderTable, rendertable);             n++;
     XtSetArg (args[n], XmNitems, xmstring_table);                n++;
     XtSetArg (args[n], XmNitemCount, xmstring_count);            n++;
-    XtSetArg (args[n], XmNwidth, 400);                           n++;
+    XtSetArg (args[n], XmNwidth, 500);                           n++;
     XtSetArg (args[n], XmNvisibleItemCount, xmstring_count + 1); n++;
     list = XmCreateScrolledList (rowcol, "list", args, n);
     XtManageChild (list);
