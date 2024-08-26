@@ -8,7 +8,11 @@
 #include <Xm/Xm.h>
 #include <Xm/RowColumn.h>
 #include <Xm/List.h>
-
+#include <Xm/MainW.h>
+#include <Xm/CascadeB.h>
+#include <Xm/SeparatoG.h>
+#include <Xm/PushBG.h>
+#include <Xm/Form.h>
 
 #include "config.h"
 #include "imap.h"
@@ -63,29 +67,86 @@ XmStringTable CreateListData (int *count)
     return table;
 }
 
-int main (int argc, char *argv[])
+void setup_menu_bar(Widget menu_bar);
+void setup_table(Widget main_w, Widget toplevel);
+
+int main(int argc, char **argv)
 {
-    Widget             toplevel, rowcol, list;
-    XtAppContext       app;
-    Arg                args[10];
+    Widget toplevel, main_w, menu_bar, main_form;
+    XtAppContext app;
+
+    XtSetLanguageProc (NULL, NULL, NULL);
+
+    toplevel = XtVaAppInitialize (&app, "Demos", NULL, 0,
+                                  &argc, argv, NULL, NULL);
+
+    main_w = XtVaCreateManagedWidget ("main_w",
+                                      xmMainWindowWidgetClass, toplevel,
+                                      XmNallowShellResize, True,
+                                      XmNtitle, "Main Window",
+                                      XmNinitialState, NormalState,
+                                      NULL);
+
+    main_form = XtVaCreateWidget("mainwindow_form",
+                     xmFormWidgetClass,
+                     main_w,
+                     XmNmarginHeight, 0,
+                     XmNmarginWidth, 0,
+                     XmNresizePolicy, XmRESIZE_GROW,
+                     XmNheight, 175,
+                     XmNwidth, 401,
+                     NULL);
+
+    
+
+    menu_bar = XmCreateMenuBar (main_w, "MenuBar", NULL, 0);
+    setup_menu_bar(menu_bar);
+    XtManageChild (menu_bar);
+
+    setup_table(main_form, toplevel);
+    XtManageChild(main_form);
+    XtRealizeWidget (toplevel);
+    XtAppMainLoop (app);
+    return 0;
+}
+
+void setup_menu_bar(Widget menu_bar)
+{
+    XmString    label_str;
+    Widget      file_pull_down;
+
+    file_pull_down = XmCreatePulldownMenu (menu_bar, "file_pull_down", NULL, 0);
+    label_str = XmStringCreateLocalized ("File");
+    XtVaCreateManagedWidget ("File",
+                             xmCascadeButtonWidgetClass, menu_bar,
+                             XmNlabelString,  label_str,
+                             XmNmnemonic,    'F',
+                             XmNsubMenuId,    file_pull_down,
+                             NULL);
+    XmStringFree (label_str);
+
+    XtVaCreateManagedWidget ("Open",xmPushButtonGadgetClass, file_pull_down, NULL);
+    XtVaCreateManagedWidget ("Save", xmPushButtonGadgetClass, file_pull_down, NULL);
+    XtVaCreateManagedWidget ("separator", xmSeparatorGadgetClass, file_pull_down, NULL);
+    XtVaCreateManagedWidget ("Exit", xmPushButtonGadgetClass, file_pull_down, NULL);
+
+}
+
+void setup_table(Widget parent, Widget toplevel)
+{
+    Arg                args[20];
     XmTab              tabs[MAX_COLUMNS];
     XmTabList          tablist;
     XmRendition        renditions[MAX_COLUMNS];
     XmRenderTable      rendertable;
+    Widget             list;
     XmStringTable      xmstring_table;
+    int                i, n;
     int                xmstring_count;
-    int                n, i;
-
-    XtSetLanguageProc (NULL, NULL, NULL);
-    toplevel = XtVaOpenApplication (&app, "Demos", NULL, 0, &argc, argv, NULL, 
-                                    sessionShellWidgetClass, NULL);
-    rowcol = XmCreateRowColumn (toplevel, "rowcol", NULL, 0);
-
 
     /* Create tab stops for columnar output */
     for (i = 0; i < MAX_COLUMNS; i++) {
-        tabs[i] = XmTabCreate ((float) 4, 
-                               XmINCHES, 
+        tabs[i] = XmTabCreate ((float) 4, XmINCHES, 
                                ((i == 0) ? XmABSOLUTE : XmRELATIVE),
                                XmALIGNMENT_BEGINNING, 
                                ".");
@@ -94,8 +155,6 @@ int main (int argc, char *argv[])
     /* Create a tablist table which contains the tabs */
     tablist = XmTabListInsertTabs (NULL, tabs, XtNumber (tabs), 0);
 
-    /* Create some multi-font/color renditions, and use the tablist */
-    /* This will be inherited if we use it on the first rendition */
     for (i = 0; i < MAX_COLUMNS; i++) {
         n = 0;
 
@@ -103,12 +162,9 @@ int main (int argc, char *argv[])
             XtSetArg (args[n], XmNtabList, tablist); n++;
         }
 
-
         XtSetArg (args[n], XmNfontName, HELVETICA); n++;
         XtSetArg (args[n], XmNfontType, XmFONT_IS_FONT);         n++;
-        renditions[i] = XmRenditionCreate (toplevel,
-                                           "",
-                                           args, n);
+        renditions[i] = XmRenditionCreate (toplevel, "", args, n);
     }
 
     /* Create the Render Table */
@@ -118,18 +174,30 @@ int main (int argc, char *argv[])
                                                XmMERGE_NEW);
 
     /* Create the multi-column data for the list */
-
     xmstring_table = CreateListData (&xmstring_count);
 
     /* Create the List, using the render table */
     n = 0;
+    XtSetArg (args[n], XmNlistSizePolicy, XmCONSTANT);  ++n;
+    XtSetArg(args[n], XmNscrollBarDisplayPolicy, XmAUTOMATIC);  ++n;
     XtSetArg (args[n], XmNrenderTable, rendertable);             n++;
     XtSetArg (args[n], XmNitems, xmstring_table);                n++;
     XtSetArg (args[n], XmNitemCount, xmstring_count);            n++;
-    XtSetArg (args[n], XmNwidth, 500);                           n++;
     XtSetArg (args[n], XmNvisibleItemCount, 10); n++;
-    list = XmCreateScrolledList (rowcol, "list", args, n);
+    XtSetArg (args[n], XmNbottomOffset, 4);  ++n;
+    XtSetArg (args[n], XmNbottomAttachment, XmATTACH_FORM);  ++n;
+    XtSetArg (args[n], XmNrightOffset, 4);  ++n;
+    XtSetArg (args[n], XmNrightAttachment, XmATTACH_FORM);  ++n;
+    XtSetArg (args[n], XmNleftOffset, 4);  ++n;
+    XtSetArg (args[n], XmNleftAttachment, XmATTACH_FORM);  ++n;
+    XtSetArg (args[n], XmNtopOffset, 28);  ++n;
+    XtSetArg (args[n], XmNtopAttachment, XmATTACH_FORM);  ++n;
+    XtSetArg (args[n], XmNheight, 143);  ++n;
+    XtSetArg (args[n], XmNwidth, 393);  ++n;
+    XtSetArg (args[n], XmNy, 28);  ++n;
+    XtSetArg (args[n], XmNx, 4);  ++n;
 
+    list = XmCreateScrolledList (parent, "list", args, n);
 
     XtManageChild (list);
 
@@ -150,12 +218,8 @@ int main (int argc, char *argv[])
 
     /* Fourthly, the XmRendition objects */
     for (i = 0; i < XtNumber (renditions); i++)
-       XmRenditionFree (renditions[i]);
+        XmRenditionFree (renditions[i]);
 
     /* Lastly, the XmRenderTable object */
     XmRenderTableFree (rendertable);
-
-    XtManageChild (rowcol);
-    XtRealizeWidget (toplevel);
-    XtAppMainLoop (app);
 }
