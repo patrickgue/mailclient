@@ -13,6 +13,7 @@
 #include <Xm/SeparatoG.h>
 #include <Xm/PushBG.h>
 #include <Xm/Form.h>
+#include <Xm/PushB.h>
 
 #include "config.h"
 #include "imap.h"
@@ -20,6 +21,12 @@
 
 #define MAX_COLUMNS    2
 #define HELVETICA "-*-helvetica-medium-r-normal--12-*-*-*-*-*-iso8859-1"
+
+void clb_exit(Widget w, XtPointer client_data, XtPointer call_data)
+{
+    printf("Exit normally");
+    exit(0);
+}
 
 /*
 ** CreateListData(): routine to convert the
@@ -69,6 +76,7 @@ XmStringTable CreateListData (int *count)
 
 void setup_menu_bar(Widget menu_bar);
 void setup_table(Widget main_w, Widget toplevel);
+void setup_toolbar(Widget parent);
 
 int main(int argc, char **argv)
 {
@@ -104,6 +112,9 @@ int main(int argc, char **argv)
     XtManageChild (menu_bar);
 
     setup_table(main_form, toplevel);
+
+    setup_toolbar(main_form);
+    
     XtManageChild(main_form);
     XtRealizeWidget (toplevel);
     XtAppMainLoop (app);
@@ -113,7 +124,7 @@ int main(int argc, char **argv)
 void setup_menu_bar(Widget menu_bar)
 {
     XmString    label_str;
-    Widget      file_pull_down;
+    Widget      file_pull_down, exit;
 
     file_pull_down = XmCreatePulldownMenu (menu_bar, "file_pull_down", NULL, 0);
     label_str = XmStringCreateLocalized ("File");
@@ -128,7 +139,9 @@ void setup_menu_bar(Widget menu_bar)
     XtVaCreateManagedWidget ("Open",xmPushButtonGadgetClass, file_pull_down, NULL);
     XtVaCreateManagedWidget ("Save", xmPushButtonGadgetClass, file_pull_down, NULL);
     XtVaCreateManagedWidget ("separator", xmSeparatorGadgetClass, file_pull_down, NULL);
-    XtVaCreateManagedWidget ("Exit", xmPushButtonGadgetClass, file_pull_down, NULL);
+    exit = XtVaCreateManagedWidget ("Exit", xmPushButtonGadgetClass, file_pull_down, NULL);
+
+    XtAddCallback(exit, XmNactivateCallback, clb_exit, NULL);
 
 }
 
@@ -222,4 +235,29 @@ void setup_table(Widget parent, Widget toplevel)
 
     /* Lastly, the XmRenderTable object */
     XmRenderTableFree (rendertable);
+}
+
+
+void setup_toolbar(Widget parent)
+{
+    Widget button_new, button_refresh;
+
+    button_new = XtVaCreateManagedWidget ("btn_new", xmPushButtonWidgetClass,
+                                          parent,
+                                          XmNy, 4,
+                                          XmNx, 4,
+                                          XmNwidth, 50,
+                                          XmNlabelString, XmStringCreateSimple("New"),
+                                          NULL);
+
+    button_refresh = XtVaCreateManagedWidget ("btn_refresh", xmPushButtonWidgetClass,
+                                          parent,
+                                          XmNy, 4,
+                                          XmNx, 58,
+                                          XmNwidth, 50,
+                                          XmNlabelString, XmStringCreateSimple("Refresh"),
+                                          NULL);
+
+    XtManageChild(button_refresh);
+    XtManageChild(button_new);
 }
