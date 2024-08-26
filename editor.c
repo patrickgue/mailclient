@@ -1,11 +1,9 @@
 #include <Xm/DialogS.h>
-
 #include <Xm/Form.h>
 #include <Xm/TextF.h>
 #include <Xm/Text.h>
 #include <Xm/Label.h>
 #include <Xm/PushB.h>
-#include <Xm/MessageB.h>
 #include <Xm/PanedW.h>
 
 #define OFFSET_LEFT 60
