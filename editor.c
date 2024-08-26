@@ -14,18 +14,19 @@ Widget dialog, to, cc, bcc, subject, editor;
 
 void clb_send(Widget w, XtPointer client_data, XtPointer call_data)
 {
-    printf("Subject: \"%s\"\n", XmTextFieldGetString(subject));
+    char *txt_subject, *txt_to, *txt_cc, *txt_bcc, *txt_content;
+    XtVaGetValues(to,      XmNvalue, &txt_to, NULL);
+    XtVaGetValues(cc,      XmNvalue, &txt_cc, NULL);
+    XtVaGetValues(bcc,     XmNvalue, &txt_bcc, NULL);
+    XtVaGetValues(subject, XmNvalue, &txt_subject, NULL);
+    XtVaGetValues(editor,  XmNvalue, &txt_content, NULL);
+    printf("To:\t\t\"%s\"\nCC:\t\t\"%s\"\nBCC:\t\t\"%s\"\nSubject:\t\"%s\"\nContent:\t\"%s\"\n", txt_to, txt_cc, txt_bcc, txt_subject, txt_content);
     //XtPopdown(dialog);
 }
 
 void clb_dismiss(Widget w, XtPointer client_data, XtPointer call_data)
 {
     XtPopdown(dialog);
-}
-
-void callback_func(Widget w, XtPointer client_data, XtPointer call_data)
-{
-    printf("callback\n");
 }
 
 
