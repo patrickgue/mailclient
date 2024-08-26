@@ -15,9 +15,14 @@
 #include <Xm/Form.h>
 #include <Xm/PushB.h>
 
+
+
 #include "config.h"
+#include "editor.h"
 #include "imap.h"
 
+
+Widget toplevel;
 
 #define MAX_COLUMNS    2
 #define HELVETICA "-*-helvetica-medium-r-normal--12-*-*-*-*-*-iso8859-1"
@@ -78,9 +83,16 @@ void setup_menu_bar(Widget menu_bar);
 void setup_table(Widget main_w, Widget toplevel);
 void setup_toolbar(Widget parent);
 
+
+
+void clb_new(Widget w, XtPointer client_data, XtPointer call_data)
+{
+    new_email_window(toplevel);
+}
+
 int main(int argc, char **argv)
 {
-    Widget toplevel, main_w, menu_bar, main_form;
+    Widget main_w, menu_bar, main_form;
     XtAppContext app;
 
     XtSetLanguageProc (NULL, NULL, NULL);
@@ -93,17 +105,17 @@ int main(int argc, char **argv)
                                       XmNallowShellResize, True,
                                       XmNtitle, "Main Window",
                                       XmNinitialState, NormalState,
+                                      XmNheight, 480,
+                                      XmNwidth, 640,
                                       NULL);
 
     main_form = XtVaCreateWidget("mainwindow_form",
-                     xmFormWidgetClass,
-                     main_w,
-                     XmNmarginHeight, 0,
-                     XmNmarginWidth, 0,
-                     XmNresizePolicy, XmRESIZE_GROW,
-                     XmNheight, 175,
-                     XmNwidth, 401,
-                     NULL);
+                                 xmFormWidgetClass,
+                                 main_w,
+                                 XmNmarginHeight, 0,
+                                 XmNmarginWidth, 0,
+                                 XmNresizePolicy, XmRESIZE_GROW,
+                                 NULL);
 
     
 
@@ -258,6 +270,8 @@ void setup_toolbar(Widget parent)
                                           XmNlabelString, XmStringCreateSimple("Refresh"),
                                           NULL);
 
+    XtAddCallback(button_new, XmNactivateCallback, clb_new, NULL);
+    
     XtManageChild(button_refresh);
     XtManageChild(button_new);
 }
