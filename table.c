@@ -215,11 +215,10 @@ void setup_table(Widget parent, Widget toplevel)
     XtSetArg (args[n], XmNrightAttachment, XmATTACH_FORM);  ++n;
     XtSetArg (args[n], XmNleftOffset, 4);  ++n;
     XtSetArg (args[n], XmNleftAttachment, XmATTACH_FORM);  ++n;
-    XtSetArg (args[n], XmNtopOffset, 28);  ++n;
+    XtSetArg (args[n], XmNtopOffset, 32);  ++n;
     XtSetArg (args[n], XmNtopAttachment, XmATTACH_FORM);  ++n;
     XtSetArg (args[n], XmNheight, 143);  ++n;
     XtSetArg (args[n], XmNwidth, 393);  ++n;
-    XtSetArg (args[n], XmNy, 28);  ++n;
     XtSetArg (args[n], XmNx, 4);  ++n;
 
     list = XmCreateScrolledList (parent, "list", args, n);
@@ -258,15 +257,15 @@ void setup_toolbar(Widget parent)
                                           parent,
                                           XmNy, 4,
                                           XmNx, 4,
-                                          XmNwidth, 50,
+                                          XmNwidth, 60,
                                           XmNlabelString, XmStringCreateSimple("New"),
                                           NULL);
 
     button_refresh = XtVaCreateManagedWidget ("btn_refresh", xmPushButtonWidgetClass,
                                           parent,
                                           XmNy, 4,
-                                          XmNx, 58,
-                                          XmNwidth, 50,
+                                          XmNx, 68,
+                                          XmNwidth, 60,
                                           XmNlabelString, XmStringCreateSimple("Refresh"),
                                           NULL);
 
