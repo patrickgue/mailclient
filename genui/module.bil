@@ -1,0 +1,124 @@
+:bil-version	1 0
+:module module
+(
+
+:element mainwindow
+(
+	:type			:base-window
+	:width			401
+	:height			175
+	:bg-color		"white"
+	:label			"Main Window"
+	:resizable		:true
+	:visible		:true
+	:iconic			:false
+	:children		(
+		controlpane
+		menubar
+	)
+)
+:element controlpane
+(
+	:type			:container
+	:container-type		:relative
+	:x			0
+	:y			0
+	:visible		:true
+	:border-frame		:none
+	:north-attachment	(:point 0 0)
+	:south-attachment	(:point 0 0)
+	:east-attachment	(:point 0 0)
+	:west-attachment	(:point 0 0)
+	:children		(
+		list
+		button
+	)
+)
+:element list
+(
+	:type			:list
+	:x			4
+	:y			28
+	:width			393
+	:height			143
+	:selection-mode		:browse
+	:selection-required	:false
+	:num-rows		-1
+	:active			:true
+	:visible		:true
+	:north-attachment	(:point 0 28)
+	:south-attachment	(:point 0 4)
+	:east-attachment	(:point 0 4)
+	:west-attachment	(:point 0 4)
+	:children		(
+		list_itemA_item
+		list_itemB_item
+	)
+)
+:element list_itemA_item
+(
+	:type			:item
+	:item-type		:item-for-list
+	:label			"itemA"
+	:selected		:false
+)
+:element list_itemB_item
+(
+	:type			:item
+	:item-type		:item-for-list
+	:label			"itemB"
+	:selected		:false
+)
+:element button
+(
+	:type			:button
+	:button-type		:push-button
+	:x			3
+	:y			0
+	:label-type		:string
+	:label-alignment	:center
+	:label			"Button"
+	:active			:true
+	:visible		:true
+	:north-attachment	(:point 0 4)
+	:west-attachment	(:point 0 4)
+)
+:element menubar
+(
+	:type			:container
+	:container-type		:menu-bar
+	:active			:true
+	:children		(
+		menubar_File_item
+		menubar_Edit_item
+		menubar_Help_item
+	)
+)
+:element menubar_File_item
+(
+	:type			:item
+	:item-type		:item-for-menubar
+	:label-type		:string
+	:label			"File"
+	:is-help-item		:false
+	:active			:true
+)
+:element menubar_Edit_item
+(
+	:type			:item
+	:item-type		:item-for-menubar
+	:label-type		:string
+	:label			"Edit"
+	:is-help-item		:false
+	:active			:true
+)
+:element menubar_Help_item
+(
+	:type			:item
+	:item-type		:item-for-menubar
+	:label-type		:string
+	:label			"Help"
+	:is-help-item		:true
+	:active			:true
+)
+)

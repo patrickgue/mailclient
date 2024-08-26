@@ -1,0 +1,17 @@
+:bil-version	1 0
+:project maillist
+(
+	:files			(module.bil)
+	:root-window		module.mainwindow
+	:session-management	(
+		:sessioning-method :none
+	)
+	:tooltalk		(
+		:desktop-level	:none
+	)
+	:internationalization	(
+		:enabled	:false
+	)
+	:res-file-types		()
+
+)
