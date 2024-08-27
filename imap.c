@@ -87,7 +87,7 @@ int imap_init(char *uri, char *user, char *passwd)
     curl_easy_setopt(curl, CURLOPT_USERNAME, user);
     curl_easy_setopt(curl, CURLOPT_PASSWORD, passwd);
     curl_easy_setopt(curl, CURLOPT_URL, uri);
-    /* curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L); */
+    curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
     return curl != 0;
 }
@@ -128,4 +128,38 @@ int imap_inbox_fetch_list(char *inbox, int n, struct imap_inbox_list **l)
     }
 
     return list_index;
+}
+
+
+char **content_buff;
+int   content_size;
+
+size_t imap_inbox_process_body(char *ptr, size_t size, size_t nmemb, void *userdata)
+{
+    printf("imap_inbox_process_body\n");
+    *content_buff = malloc(size * (nmemb + 1));
+    if (*content_buff == NULL)
+    {
+        fprintf(stderr, "Unable to allocate memory\n");
+        exit(1);
+    }
+    strncpy(*content_buff, ptr, size * nmemb);
+    content_size = size * nmemb;
+
+
+    printf("Content (%d): \"\%s\"", nmemb, ptr);
+
+    return nmemb * size;
+
+}
+
+void imap_inbox_fetch_body(char *inbox, int index, char **buff, int *s)
+{
+    char request[128];
+    sprintf(request, "FETCH %d BODY[TEXT]", index);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, imap_inbox_process_body); 
+    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, request);
+    content_buff = buff;
+    curl_easy_perform(curl);
+    *s = content_size;
 }

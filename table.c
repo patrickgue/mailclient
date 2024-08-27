@@ -19,18 +19,31 @@
 
 #include "config.h"
 #include "editor.h"
+#include "viewer.h"
 #include "imap.h"
 
 
-Widget toplevel;
+Widget                   toplevel;
+struct imap_inbox_list **entries;
 
 #define MAX_COLUMNS    2
 #define HELVETICA "-*-helvetica-medium-r-normal--12-*-*-*-*-*-iso8859-1"
+
 
 void clb_exit(Widget w, XtPointer client_data, XtPointer call_data)
 {
     printf("Exit normally");
     exit(0);
+}
+
+void clb_list_select(Widget w, XtPointer client_data, XtPointer call_data)
+{
+    XmListCallbackStruct *cbs = (XmListCallbackStruct *) call_data;
+    int size, pos = cbs->item_position;
+    char **content = malloc(sizeof(char*));
+    imap_inbox_fetch_body("INBOX", pos, content, &size);
+    view_email_window(toplevel, &((*entries)[pos - 1]), *content);
+    free(content);
 }
 
 /*
@@ -44,7 +57,6 @@ XmStringTable CreateListData (int *count)
     XmString                 tmp = (XmString) 0;
     XmString                 tmp2 = (XmString) 0;
     XmString                 tab;
-    struct imap_inbox_list **entries;
     int                      entries_count, i;
     struct imap_inbox_meta   meta;
 
@@ -74,8 +86,11 @@ XmStringTable CreateListData (int *count)
     table[entries_count] = (XmString) 0;
 
     *count = entries_count;
-    free(*entries);
-    free(entries);
+    /*
+      TODO: Prevent memory leaks
+      free(*entries);
+      free(entries);
+    */
     return table;
 }
 
@@ -203,12 +218,10 @@ void setup_table(Widget parent, Widget toplevel)
 
     /* Create the List, using the render table */
     n = 0;
-    XtSetArg (args[n], XmNlistSizePolicy, XmCONSTANT);  ++n;
-    XtSetArg(args[n], XmNscrollBarDisplayPolicy, XmAUTOMATIC);  ++n;
+    XtSetArg (args[n], XmNscrollBarDisplayPolicy, XmAUTOMATIC);  ++n;
     XtSetArg (args[n], XmNrenderTable, rendertable);             n++;
     XtSetArg (args[n], XmNitems, xmstring_table);                n++;
     XtSetArg (args[n], XmNitemCount, xmstring_count);            n++;
-    XtSetArg (args[n], XmNvisibleItemCount, 10); n++;
     XtSetArg (args[n], XmNbottomOffset, 4);  ++n;
     XtSetArg (args[n], XmNbottomAttachment, XmATTACH_FORM);  ++n;
     XtSetArg (args[n], XmNrightOffset, 4);  ++n;
@@ -222,7 +235,7 @@ void setup_table(Widget parent, Widget toplevel)
     XtSetArg (args[n], XmNx, 4);  ++n;
 
     list = XmCreateScrolledList (parent, "list", args, n);
-
+    XtAddCallback(list, XmNdefaultActionCallback, clb_list_select, NULL);
     XtManageChild (list);
 
     /* Free the memory now the widget has the data */

@@ -48,3 +48,24 @@ void imap_cleanup()
 {
     /* Nothing */
 }
+
+
+void imap_inbox_fetch_body(char *inbox, int index, char **buff, int *s)
+{
+    char dummy[] = "The browse and single selection modes only allow the selection of a single item. The \
+browsing mode is regarded as a simpler interface for the user. Interactively, browse \
+selection allows the user to drag the selection over many items; the selection is not made \
+till the mouse button is released. In the single selection mode, the selection is made as soon \
+as the mouse button is pressed. For browse selection, the callback list associated with the \
+XmNbrowseSelectionCallback is used, while the XmNsingleSelectionCallback \
+is used for the single selection mode.\n";
+    int size = (strlen(dummy) + 1) * sizeof(char);
+    (*buff) = malloc(size);
+    if (*buff == NULL)
+    {
+        fprintf(stderr, "Unable to allocate memory\n");
+        exit(1);
+    }
+    strncpy(*buff, dummy, size);
+    *s = size;
+}

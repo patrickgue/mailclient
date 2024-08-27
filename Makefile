@@ -1,5 +1,5 @@
 PROG=xmailclient
-SRCS=imap_mock.c table.c editor.c
+SRCS=imap_mock.c table.c editor.c viewer.c
 CFLAGS+=-Wall
 LDFLAGS+=-lcurl -lXm -lXt -lX11
 MAN=
