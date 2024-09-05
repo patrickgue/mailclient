@@ -1,11 +1,16 @@
 
-Mail client with retro design. Not much to see yet...
+Mail client with retro design. In active development, currently able to display a list of mails in your main inbox.
 
 ![window showing example data](./doc/screenshot.png)
 
-_few random pointers and resources:_
+# Getting started
+
+You need the [openmotif](https://archlinux.org/packages/extra/x86_64/openmotif/) and [curl](https://archlinux.org/packages/core/x86_64/curl/) to compile this project (arch packages linked. Use -dev versions on debian)
 
 rename `config.h.example` to `config.h` and fill in your server/username/password
+
+
+# few random pointers and resources:
 
 
 
