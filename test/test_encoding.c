@@ -3,11 +3,7 @@
 #include <string.h>
 
 #include "../encoding.h"
-
-void succ(char *msg)
-{
-    printf("%-30s[SUCCESS]\n", msg);
-}
+#include "test.h"
 
 void dbg(char *str)
 {
@@ -51,8 +47,8 @@ void test_decoding()
     assert(strcmp(buff, expe) == 0);
 }
 
-int main(void)
+void test_run_mime(void)
 {
-    test_encoding(); succ("mime_encode");
-    test_decoding(); succ("mime_decode");
+    test_encoding(); succ("mime encode");
+    test_decoding(); succ("mime decode");
 }
