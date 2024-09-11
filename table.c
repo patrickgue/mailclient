@@ -4,6 +4,9 @@
 */
 
 #include <stdlib.h>
+#include <wchar.h>
+#include <locale.h>
+#include <iconv.h>
 
 #include <Xm/Xm.h>
 #include <Xm/RowColumn.h>
@@ -16,11 +19,11 @@
 #include <Xm/PushB.h>
 
 
-
 #include "config.h"
 #include "editor.h"
 #include "viewer.h"
 #include "imap.h"
+#include "encoding.h"
 
 
 Widget                   toplevel;
@@ -59,7 +62,11 @@ XmStringTable CreateListData (int *count)
     XmString                 tab;
     int                      entries_count, i;
     struct imap_inbox_meta   meta;
-
+    char                     subject[STR_BUFF_LEN], *s, from[STR_BUFF_LEN], *f;
+    char                     subject_latin1[STR_BUFF_LEN], *sl, from_latin1[STR_BUFF_LEN], *fl;
+    iconv_t                  ic;
+    size_t                   subject_orig_len, subject_latin1_len, from_orig_len, from_latin1_len;
+    
     tab = XmStringComponentCreate (XmSTRING_COMPONENT_TAB, 0, NULL);
 
     imap_init(IMAP, USER, PASSWD);
@@ -72,8 +79,29 @@ XmStringTable CreateListData (int *count)
     
     for (i = 0; i < entries_count; i++)
     {
-        tmp2 = XmStringGenerate((XtPointer) (*entries)[i].subject, NULL, XmCHARSET_TEXT, "");
-        row = XmStringGenerate((XtPointer) (*entries)[i].from, NULL, XmCHARSET_TEXT, "");
+        strncpy(subject, (*entries)[i].subject, STR_BUFF_LEN);
+        strncpy(from, (*entries)[i].from, STR_BUFF_LEN);
+        mime_decode(subject, STR_BUFF_LEN);
+        mime_decode(from, STR_BUFF_LEN);
+        subject_orig_len = strlen(subject);
+        subject_latin1_len = sizeof subject_latin1;
+        from_orig_len = strlen(from);
+        from_latin1_len = sizeof from_latin1;
+
+        s = subject;
+        sl = subject_latin1;
+        f = from;
+        fl = from_latin1;
+
+        ic = iconv_open("LATIN1", "UTF-8");
+
+        iconv(ic, &s, &subject_orig_len, &sl, &subject_latin1_len);
+        iconv(ic, &f, &from_orig_len, &fl, &from_latin1_len);
+        
+        iconv_close(ic);
+        
+        tmp2 = XmStringGenerate((XtPointer) subject_latin1, NULL, XmCHARSET_TEXT, "");
+        row = XmStringGenerate((XtPointer) from_latin1, NULL, XmCHARSET_TEXT, "");
         tmp = XmStringConcat(row, tab);
         row = XmStringConcat(tmp, tmp2);
         table[i] = row;
@@ -110,6 +138,11 @@ int main(int argc, char **argv)
     Widget main_w, menu_bar, main_form;
     XtAppContext app;
 
+    if (setlocale(LC_ALL, "") == NULL)
+    {
+        fprintf(stderr, "setting locale failed. Exiting\n");
+        exit(1);
+    }
     XtSetLanguageProc (NULL, NULL, NULL);
 
     toplevel = XtVaAppInitialize (&app, "Demos", NULL, 0,

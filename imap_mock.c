@@ -36,7 +36,7 @@ int imap_inbox_fetch_list(char *inbox, int items, struct imap_inbox_list **list)
     for (i = 2; i < items; i++)
     {
         sprintf((*list)[i].subject, "Fwd: blabla %d", i);
-        strcpy((*list)[i].from,    "Bob <bob@mail.com>");
+        strcpy((*list)[i].from,    "B=C3=B6b <bob@mail.com>");
         strcpy((*list)[i].to,      "Me <me@mail.com>");
         strcpy((*list)[i].cc,      "");
         strcpy((*list)[i].bcc,     "");

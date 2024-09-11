@@ -14,7 +14,7 @@ void mime_encode(char *buff, int buff_size)
     for (i = 0; buff[i] != '\0' && i < buff_size; i++)
     {
         c = (unsigned char) buff[i];
-        if (c < 32 || c >= 127)
+        if (c < 32 || c >= 127 || c == '=')
         {
             for (j = strlen(buff); j > i; j--)
             {
@@ -30,4 +30,41 @@ void mime_encode(char *buff, int buff_size)
     }
 }
 
-void mime_decode(char *, int);
+int hex_to_int(char h)
+{
+    int i;
+    if (h >= 'a' && h <= 'f')
+    {
+        h = h & 0b1011111;
+    }
+
+    for (i = 0; i < 16; i++)
+    {
+        if (h == HEX[i])
+            return i;
+    }
+
+    return -1;
+}
+
+void mime_decode(char *buff, int buff_size)
+{
+    int i, j;
+    char c;
+
+    for (i = 0; buff[i] != '\0' && i < buff_size; i++)
+    {
+        if (buff[i] == '=' && buff[i + 1] != '?')
+        {
+            c = (hex_to_int(buff[i + 1]) << 4) + hex_to_int(buff[i + 2]);
+            
+
+            for (j = i; j < strlen(buff); j++)
+            {
+                buff[j] = buff[j + 2];
+            }
+
+            buff[i] = c;
+        }
+    }
+}

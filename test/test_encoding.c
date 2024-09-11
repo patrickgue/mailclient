@@ -42,7 +42,17 @@ void test_encoding()
     assert(strcmp(buff, "Sal=C3=BC World") == 0);
 }
 
+void test_decoding()
+{
+    char buff[64] = "Sal=C3=BC World";
+    char expe[64] = {'S', 'a', 'l', 0xC3, 0xBC, ' ', 'W', 'o', 'r', 'l', 'd', 0};
+
+    mime_decode(buff, 64);
+    assert(strcmp(buff, expe) == 0);
+}
+
 int main(void)
 {
     test_encoding(); succ("mime_encode");
+    test_decoding(); succ("mime_decode");
 }
