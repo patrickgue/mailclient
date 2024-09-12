@@ -79,6 +79,11 @@ XmStringTable CreateListData (int *count)
     
     for (i = 0; i < entries_count; i++)
     {
+        /* TODO: simplify */
+        memset(subject, 0, STR_BUFF_LEN);
+        memset(subject_latin1, 0, STR_BUFF_LEN);
+        memset(from, 0, STR_BUFF_LEN);
+        memset(from_latin1, 0, STR_BUFF_LEN);
         strncpy(subject, (*entries)[i].subject, STR_BUFF_LEN);
         strncpy(from, (*entries)[i].from, STR_BUFF_LEN);
         mime_decode(subject, STR_BUFF_LEN);
@@ -199,7 +204,10 @@ void setup_menu_bar(Widget menu_bar)
     XtVaCreateManagedWidget ("Open",xmPushButtonGadgetClass, file_pull_down, NULL);
     XtVaCreateManagedWidget ("Save", xmPushButtonGadgetClass, file_pull_down, NULL);
     XtVaCreateManagedWidget ("separator", xmSeparatorGadgetClass, file_pull_down, NULL);
-    exit = XtVaCreateManagedWidget ("Exit", xmPushButtonGadgetClass, file_pull_down, NULL);
+    exit = XtVaCreateManagedWidget ("Exit",
+                                    xmPushButtonGadgetClass, file_pull_down,
+                                    XmNmnemonic,    'X',
+                                    NULL);
 
     XtAddCallback(exit, XmNactivateCallback, clb_exit, NULL);
 

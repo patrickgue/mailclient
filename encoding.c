@@ -9,7 +9,7 @@
 
 void mime_encode(char *buff, int buff_size)
 {
-    int i, j, len, c;
+    int i, j, c;
 
     for (i = 0; buff[i] != '\0' && i < buff_size; i++)
     {
@@ -57,7 +57,6 @@ void mime_decode(char *buff, int buff_size)
         if (buff[i] == '=' && buff[i + 1] != '?')
         {
             c = (hex_to_int(buff[i + 1]) << 4) + hex_to_int(buff[i + 2]);
-            
 
             for (j = i; j < strlen(buff); j++)
             {
