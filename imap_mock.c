@@ -69,3 +69,15 @@ is used for the single selection mode.\n";
     strncpy(*buff, dummy, size);
     *s = size;
 }
+
+
+void imap_inbox_fetch_folder_list(struct imap_inbox_folder_item **items, size_t *size)
+{
+    *items = realloc(*items, sizeof(struct imap_inbox_folder_item) * 5);
+    *size = 5;
+    strcpy((*items)[0].item, "INBOX");
+    strcpy((*items)[1].item, "INBOX.Archives");
+    strcpy((*items)[2].item, "INBOX.Archives.Work");
+    strcpy((*items)[3].item, "INBOX.Archives.Private");
+    strcpy((*items)[4].item, "Trash");
+}

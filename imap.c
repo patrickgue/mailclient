@@ -87,7 +87,7 @@ int imap_init(char *uri, char *user, char *passwd)
     curl_easy_setopt(curl, CURLOPT_USERNAME, user);
     curl_easy_setopt(curl, CURLOPT_PASSWORD, passwd);
     curl_easy_setopt(curl, CURLOPT_URL, uri);
-    curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+    // curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
     return curl != 0;
 }
@@ -147,7 +147,7 @@ size_t imap_inbox_process_body(char *ptr, size_t size, size_t nmemb, void *userd
     content_size = size * nmemb;
 
 
-    printf("Content (%d): \"\%s\"", nmemb, ptr);
+    printf("Content (%ld): \"\%s\"", nmemb, ptr);
 
     return nmemb * size;
 
@@ -162,4 +162,40 @@ void imap_inbox_fetch_body(char *inbox, int index, char **buff, int *s)
     content_buff = buff;
     curl_easy_perform(curl);
     *s = content_size;
+}
+
+struct imap_inbox_item **inbox_list;
+size_t inbox_list_size;
+
+size_t imap_inbox_process_list(char *ptr, size_t size, size_t nmemb, void *userdata)
+{
+    char *tok, buff_arr[STR_BUFF_LEN], *buff;
+
+    buff = buff_arr;
+    tok = strtok(ptr, DELIM);
+    inbox_list_size = 0;
+
+    while (tok != NULL)
+    {
+        strncpy(buff_arr, tok, STR_BUFF_LEN);
+        buff = buff_arr;
+        for (; strstr(buff, " \".\" ") != buff; buff++);
+        buff += 5;
+
+        *inbox_list = realloc(*inbox_list, (inbox_list_size + 1) * sizeof(struct imap_inbox_item));
+        strncpy((*inbox_list)[inbox_list_size].item, buff, STR_BUFF_LEN); 
+        inbox_list_size++;
+        tok = strtok(NULL, DELIM);
+    }
+
+    return nmemb * size;
+}
+
+void imap_inbox_fetch_folder_list(struct imap_inbox_item **list, size_t *s)
+{
+    inbox_list = list;
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, imap_inbox_process_list);
+    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "LIST \"\" *");
+    curl_easy_perform(curl);
+    *s = inbox_list_size;
 }

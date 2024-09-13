@@ -26,11 +26,17 @@ struct imap_login
     char password[STR_BUFF_LEN];
 };
 
+struct imap_inbox_folder_item
+{
+    char item[STR_BUFF_LEN];
+};
+
 int imap_init(char *, char *, char *);
 void imap_inbox_fetch_meta(char *inbox, struct imap_inbox_meta*);
 
 int imap_inbox_fetch_list(char *, int, struct imap_inbox_list **);
 void imap_inbox_fetch_body(char *, int, char **, int *);
+void imap_inbox_fetch_folder_list(struct imap_inbox_folder_item **, size_t *);
 void imap_cleanup();
 
 #endif

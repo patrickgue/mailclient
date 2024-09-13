@@ -24,7 +24,7 @@
 #include "viewer.h"
 #include "imap.h"
 #include "encoding.h"
-
+#include "inbox_folder_select.h"
 
 Widget                   toplevel;
 struct imap_inbox_list **entries;
@@ -73,6 +73,7 @@ XmStringTable CreateListData (int *count)
     imap_inbox_fetch_meta("INBOX", &meta);
     entries = malloc(sizeof(struct imap_inbox_list*));
     entries_count = meta.exists;
+
     imap_inbox_fetch_list("INBOX", entries_count, entries);
 
     table = (XmStringTable) XtMalloc(sizeof(XmString) * (entries_count + 1));
@@ -136,6 +137,19 @@ void setup_toolbar(Widget parent);
 void clb_new(Widget w, XtPointer client_data, XtPointer call_data)
 {
     new_email_window(toplevel);
+}
+
+void clb_inbox_window(Widget w, XtPointer client_data, XtPointer call_data)
+{
+    struct imap_inbox_folder_item  *inbox_folder_list;
+    size_t inbox_folder_list_size;
+
+    inbox_folder_list = malloc(0); 
+    imap_inbox_fetch_folder_list(&inbox_folder_list, &inbox_folder_list_size);
+
+    view_inbox_folder_select(toplevel, inbox_folder_list, inbox_folder_list_size);
+    
+    
 }
 
 int main(int argc, char **argv)
@@ -305,12 +319,21 @@ void setup_table(Widget parent, Widget toplevel)
 
 void setup_toolbar(Widget parent)
 {
-    Widget button_new, button_refresh;
+    Widget button_new, button_refresh, button_inbox;
 
+    button_inbox = XtVaCreateManagedWidget("btn_inbox", xmPushButtonWidgetClass,
+                                           parent,
+                                           XmNx, 4,
+                                           XmNy, 4,
+                                           XmNwidth, 100,
+                                           XmNlabelString, XmStringCreateSimple("Select Inbox"),
+                                           NULL);
+    
     button_new = XtVaCreateManagedWidget ("btn_new", xmPushButtonWidgetClass,
                                           parent,
+                                          XmNrightOffset, 4,
+                                          XmNrightAttachment, XmATTACH_FORM,
                                           XmNy, 4,
-                                          XmNx, 4,
                                           XmNwidth, 60,
                                           XmNlabelString, XmStringCreateSimple("New"),
                                           NULL);
@@ -318,13 +341,14 @@ void setup_toolbar(Widget parent)
     button_refresh = XtVaCreateManagedWidget ("btn_refresh", xmPushButtonWidgetClass,
                                           parent,
                                           XmNy, 4,
-                                          XmNx, 68,
+                                          XmNx, 108,
                                           XmNwidth, 60,
                                           XmNlabelString, XmStringCreateSimple("Refresh"),
                                           NULL);
 
     XtAddCallback(button_new, XmNactivateCallback, clb_new, NULL);
-    
+    XtAddCallback(button_inbox, XmNactivateCallback, clb_inbox_window, NULL);
+    XtManageChild(button_inbox);
     XtManageChild(button_refresh);
     XtManageChild(button_new);
 }
