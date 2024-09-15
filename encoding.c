@@ -1,5 +1,4 @@
 #include <string.h>
-#include <stdio.h>
 
 #include "encoding.h"
 
@@ -20,13 +19,13 @@ void mime_encode(char *buff, int buff_size)
             {
                 buff[j + 2] = buff[j];
             }
-            
+
             buff[i]     = '=';
             buff[i + 1] = HEX[(c & 0xf0) >> 4];
             buff[i + 2] = HEX[ c & 0x0f];
             i = i + 2;
         }
-        
+
     }
 }
 

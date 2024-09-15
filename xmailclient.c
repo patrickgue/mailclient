@@ -49,10 +49,6 @@ void clb_list_select(Widget w, XtPointer client_data, XtPointer call_data)
     free(content);
 }
 
-/*
-** CreateListData(): routine to convert the
-** poem into an array of compound strings
-*/
 XmStringTable CreateListData (int *count)
 {
     XmStringTable            table = (XmStringTable) 0;

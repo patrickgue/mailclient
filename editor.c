@@ -8,7 +8,7 @@
 
 #define OFFSET_LEFT 60
 
-Widget dialog, to, cc, bcc, subject, editor;
+Widget to, cc, bcc, subject, editor;
 
 void clb_send(Widget w, XtPointer client_data, XtPointer call_data)
 {
@@ -19,18 +19,18 @@ void clb_send(Widget w, XtPointer client_data, XtPointer call_data)
     XtVaGetValues(subject, XmNvalue, &txt_subject, NULL);
     XtVaGetValues(editor,  XmNvalue, &txt_content, NULL);
     printf("To:\t\t\"%s\"\nCC:\t\t\"%s\"\nBCC:\t\t\"%s\"\nSubject:\t\"%s\"\nContent:\t\"%s\"\n", txt_to, txt_cc, txt_bcc, txt_subject, txt_content);
-    //XtPopdown(dialog);
 }
 
-void clb_dismiss(Widget w, XtPointer client_data, XtPointer call_data)
+void clb_editor_dialog_dismiss(Widget w, XtPointer client_data, XtPointer call_data)
 {
+    Widget dialog = (Widget) client_data;
     XtPopdown(dialog);
 }
 
 
 void new_email_window(Widget toplevel)
 {
-    Widget pane, form, button_send, button_discard;
+    Widget dialog, pane, form, button_send, button_discard;
     Arg    args[11];
     int    n, i;
 
@@ -48,7 +48,7 @@ void new_email_window(Widget toplevel)
                              XmNsashWidth,  1, /* PanedWindow won't let us set these to 0! */
                              XmNsashHeight, 1, /* Make small so user doesn't try to resize */
                              NULL);
-    
+
     form = XtVaCreateWidget("mainwindow_form",
                             xmFormWidgetClass,
                             pane,
@@ -65,7 +65,7 @@ void new_email_window(Widget toplevel)
                                  XmNy, 12 + (i * 32),
                                  NULL);
     }
-    
+
     to = XtVaCreateManagedWidget ("text_to",
                                   xmTextWidgetClass, form,
                                   XmNtopOffset, 4,
@@ -108,8 +108,6 @@ void new_email_window(Widget toplevel)
                                        NULL);
 
 
-    
-    
     n = 0;
     XtSetArg (args[n], XmNrows,             15); n++;
     XtSetArg (args[n], XmNcolumns,          80); n++;
@@ -123,7 +121,6 @@ void new_email_window(Widget toplevel)
     XtSetArg (args[n], XmNleftAttachment, XmATTACH_FORM);  ++n;
     XtSetArg (args[n], XmNtopOffset, 134);  ++n;
     XtSetArg (args[n], XmNtopAttachment, XmATTACH_FORM);  ++n;
-    
 
     editor = XmCreateScrolledText(form, "scrolled", args, n);
     XtManageChild(editor);
@@ -149,11 +146,10 @@ void new_email_window(Widget toplevel)
                                               XmNwidth, 60,
                                               XmNlabelString, XmStringCreateSimple("Discard"),
                                               NULL);
-    XtAddCallback(button_discard, XmNactivateCallback, clb_dismiss, NULL);
+    XtAddCallback(button_discard, XmNactivateCallback, clb_editor_dialog_dismiss, dialog);
 
-    
     XtManageChild(form);
     XtManageChild(pane);
     XtManageChild(dialog);
-    
+
 }

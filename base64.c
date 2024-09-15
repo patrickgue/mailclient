@@ -1,7 +1,5 @@
 #include "base64.h"
 
-#include <stdio.h>
-
 #define ALPH "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
 int base64_encode(char *base64_buff, size_t base64_buff_size, char *source, size_t source_size)
@@ -16,7 +14,6 @@ int base64_encode(char *base64_buff, size_t base64_buff_size, char *source, size
 
         if ((i + 1) % 6 == 0)
         {
-
             base64_buff[b64_i++] = ALPH[buff];
             buff = 0;
         }
@@ -34,7 +31,6 @@ int base64_encode(char *base64_buff, size_t base64_buff_size, char *source, size
     }
     return 0;
 }
-
 
 int base64_decode(char *output_buff, size_t output_buff_size, char *base64_source, size_t base64_source_size)
 {
