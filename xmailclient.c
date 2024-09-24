@@ -42,8 +42,8 @@ void clb_exit(Widget w, XtPointer client_data, XtPointer call_data)
 void clb_list_select(Widget w, XtPointer client_data, XtPointer call_data)
 {
     XmListCallbackStruct *cbs = (XmListCallbackStruct *) call_data;
-    int size, pos = cbs->item_position;
-    char **content = malloc(sizeof(char*));
+    int                   size, pos = cbs->item_position;
+    char                **content = malloc(sizeof(char*));
     imap_inbox_fetch_body("INBOX", pos, content, &size);
     view_email_window(toplevel, &((*entries)[pos - 1]), *content);
     free(content);
@@ -144,8 +144,6 @@ void clb_inbox_window(Widget w, XtPointer client_data, XtPointer call_data)
     imap_inbox_fetch_folder_list(&inbox_folder_list, &inbox_folder_list_size);
 
     view_inbox_folder_select(toplevel, inbox_folder_list, inbox_folder_list_size);
-    
-    
 }
 
 int main(int argc, char **argv)
