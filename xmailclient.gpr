@@ -1,0 +1,14 @@
+project XMailClient is
+  for Languages use ("ada","c");
+  for Source_Dirs use ("src");
+  for Main use ("xmailclient.c");
+  for Object_Dir use "obj";
+  package Compiler is 
+     for Default_Switches ("c") use ("-g");
+     for Default_Switches ("ada") use ("-g", "-gnat2022");
+  end Compiler;
+  package Linker is
+     for Default_Switches ("c") use ("-lX11", "-lXt", "-lXm", "-lcurl");
+     for Default_Switches ("ada") use ("-lX11", "-lXt", "-lXm", "-lcurl");
+  end Linker;
+end XMailClient;
